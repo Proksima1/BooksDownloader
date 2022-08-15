@@ -1,0 +1,64 @@
+.search-results{
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	flex-direction: column;
+}
+.search-results__wrapper{
+	max-width: 63vw;
+	width: 100%;
+}
+.search-results__wrapper > * {
+	margin-bottom: 18px;
+}
+.book-item{
+	padding: 15px 18px;
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;
+	height: 140px;
+	background-color: #e9e9e9;
+	border-radius: 20px;
+	align-items: center;
+}
+.book-item__about{
+	display: flex;
+	align-items: center;
+}
+.book-item__desc-block{
+	max-width: 100%;
+}
+.book-item__cover{
+	height: 140px;
+	min-height: 100%;
+	border-radius: 10px;
+	margin-right: 20px;
+}
+.book-item__title{
+	margin: 0;
+	/* max-width: 100%; */
+	font-size: 26px;
+	font-weight: 700;
+	/* text-overflow: ellipsis; */
+	
+}
+.book-item__author{
+	margin: 0;
+	font-size: 22px;
+	margin-top: 4px;
+	margin-bottom: 8px;
+}
+.book-item__source{
+	font-size: 20px;
+}
+.book-item__download{
+	height: 90px;
+	background-color: #8B5CF6;
+	border-radius: 15px;
+	cursor: pointer;
+}
+.error__text{
+	text-align: center;
+	font-size: 27px;
+	color: red;
+}
