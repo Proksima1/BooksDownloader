@@ -1,2 +1,1 @@
-from .siteGiver import Sites
-from .tools import writeBookInFile, get_html_and_render
+from .utils import get_html_and_render, KnigaOnlineParser, Sites

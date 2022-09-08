@@ -53,19 +53,3 @@ def convert_to_fb2(filename: str, author: str):
     path = os.path.join(dir, 'h2fb2.py')
     os.system(f'python {path} "{filename}.html" -a "{author}"')
     return filename + '.fb2'
-
-
-def writeBookInFile(source: str, parseFunc: Callable):
-    text_list, book_name, author = parseFunc(source)
-    path = 'media/books'
-    filename = generateBookName(book_name, author)
-    pathToFile = os.path.join(path, filename)
-    with open(f'{pathToFile}.html', 'w+', encoding='utf-8') as writer:
-        writer.write(
-            f'<!doctype html>\n<html lang="ru"><head><meta charset="UTF-8"><meta name="viewport"'
-            f' content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">'
-            f'<meta http-equiv="X-UA-Compatible" content="ie=edge"><title>{book_name}</title></head><body>')
-        writer.write(text_list)
-        writer.write('</body></html>')
-    filePath = convert_to_fb2(pathToFile, author)
-    return filePath, filename + '.fb2'

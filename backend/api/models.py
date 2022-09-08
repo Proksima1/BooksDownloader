@@ -1,7 +1,6 @@
 from datetime import datetime
-import io
-from io import BytesIO
 
+from django.contrib import admin
 from django.db import models
 
 
@@ -13,34 +12,39 @@ class Log(models.Model):
         return self.message
 
 
-class SearchRequest(models.Model):
-    class Meta:
-        verbose_name_plural = 'Search requests'
-
-    timestamp = models.DateTimeField(default=datetime.now)
-    hashId = models.IntegerField(db_index=True)
-    searchData = models.TextField()
-
-    def __str__(self):
-        return str(self.hashId)
-
-
-class FoundBook(models.Model):
+class Book(models.Model):
     class Meta:
         verbose_name_plural = 'Found books'
 
-    bookLink = models.TextField()
-    bookSize = models.IntegerField()
-    book = models.FileField()
+    bookName = models.TextField(null=False, unique=True)
+    bookAuthor = models.TextField(null=False)
+    bookCover = models.TextField(null=False)
+    bookLink = models.TextField(null=False)
+    bookSize = models.IntegerField(null=True)
+    book = models.FileField(null=True)
 
     def __str__(self):
-        return f"{self.bookLink} - {self.bookSize}"
+        return f"Book: {self.bookName}"
 
 
-class BooksToSearch(models.Model):
-    searchRequest = models.ForeignKey(SearchRequest, on_delete=models.CASCADE)
-    book = models.ForeignKey(FoundBook, on_delete=models.CASCADE)
+@admin.register(Book)
+class BookAdmin(admin.ModelAdmin):
+    list_display = ('bookName', 'bookAuthor')
+
+
+class SearchRequest(models.Model):
+    class Meta:
+        verbose_name_plural = 'Search requests'
+        ordering = ["-timestamp"]
+
+    searchRequest = models.TextField(null=False, unique=True)
+    timestamp = models.DateTimeField(default=datetime.now)
+    books = models.ManyToManyField(Book)
 
     def __str__(self):
-        print(type(self.searchRequest.hashId))
-        return f"<Search hashID:{self.searchRequest.hashId} - BookID:{self.book.id} >"
+        return f"Search Request: {self.searchRequest}"
+
+
+@admin.register(SearchRequest)
+class SearchRequestAdmin(admin.ModelAdmin):
+    list_display = ('searchRequest', 'timestamp')

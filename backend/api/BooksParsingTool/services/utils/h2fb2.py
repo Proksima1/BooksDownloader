@@ -1415,7 +1415,7 @@ def convert_to_fb(opts):
 
     params['data'] = in_file.read()
     in_file.close()
-    # os.remove(in_file.name)
+    os.remove(in_file.name)
     p = MyHTMLParser()
     p.do_meta({'author': args.author})
     data = p.process(params)

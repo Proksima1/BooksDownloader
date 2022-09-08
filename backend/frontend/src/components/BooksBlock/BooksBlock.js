@@ -4,7 +4,6 @@ import ErrorItem from '../ErrorItem/ErrorItem'
 
 
 export default function BooksBlock({ books, sendJsonMessage, error }) {
-	console.log(error === undefined && books.length > 0)
 	return (
 		<div className="search-results">
 			<div className="search-results__wrapper">

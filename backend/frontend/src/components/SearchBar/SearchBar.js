@@ -102,7 +102,6 @@ export default function SearchBar() {
 					</a>
 				</form>
 			</div >
-			{/* <BooksBlock books={books} sendJsonMessage={sendMessage} /> */}
 			{books}
 		</>
 	)

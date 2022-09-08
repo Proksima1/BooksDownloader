@@ -1,28 +1,26 @@
 from itertools import chain
 from typing import List, Dict
-
 from .services import *
 
 
 def parseBook(url: str):
     """route - download/search"""
     siteGiver = Sites()
-    if siteGiver.checkForAvailabilityToDownload(url):
+    if siteGiver.checkForAvailability(url):
         site = siteGiver.recognizeSite(url)
-        shouldRender = site['settings']['shouldRender']
-        text = get_html_and_render(url, render=shouldRender)
+        parser = site['class']()
         print(f'Starting to parse {url}')
-        data = writeBookInFile(text, parseFunc=site['routing']['download'])
+        data = parser.parse(url)
         return data
     return None
 
 
-def searchBooks(searchQ) -> List[Dict]:
-    availableSites = Sites().availableForSearch()
+def searchBooks(searchQ: str) -> List[Dict]:
+    availableSites = Sites().availableSites()
     books = []
     for site in availableSites:
-        searchF = site['routing']['search']
-        books.append(searchF(searchQ))
+        parser = site['class']()
+        books.append(parser.search(searchQ))
     books = list(chain(*books))
     return books
 
