@@ -4,7 +4,6 @@ import logo from './images/search-icon.svg'
 import BooksBlock from "../BooksBlock/BooksBlock";
 
 export default function SearchBar() {
-	// const shouldSocketReconnect = useRef(false);
 	const { sendJsonMessage } = useWebSocket('ws://127.0.0.1:8000/ws/search', {
 		onOpen: () => {
 			console.log("Connected!")
@@ -22,7 +21,7 @@ export default function SearchBar() {
 					let messageSearch = data.message;
 					console.log(messageSearch)
 					if (messageSearch.length === 0) {
-						setBooks(<BooksBlock error={"По данному запросу ничего не найдено. Попробуйте использовать похожие слова, или другие написания слов"} />);
+						setBooks(<BooksBlock error={"По данному запросу ничего не найдено. Попробуйте использовать похожие слова или другие написания слов"} />);
 					} else {
 						setBooks(<BooksBlock books={data.message} sendJsonMessage={sendMessage} />);
 					}
@@ -42,12 +41,6 @@ export default function SearchBar() {
 					break;
 			}
 		},
-		// shouldRecconect: (e) => {
-		// 	console.log(e);
-		// 	return shouldSocketReconnect.current === true;
-		// },
-		// reconnectAttempts: 10,
-		// reconnectInterval: 3000,
 	});
 	const downloadBook = (blob, filename) => {
 		const downloadUrl = window.URL.createObjectURL(blob);
@@ -68,7 +61,6 @@ export default function SearchBar() {
 	const sendMessage = (f) => sendJsonMessage(f);
 
 	const searchExec = useCallback((isSearchedExeced) => {
-		// shouldSocketReconnect.current = true;
 		let requestDict = { 'type': 'search', 'message': searchInput.value }
 		if (searchBlock.classList.contains('searching_block')) return sendJsonMessage(requestDict);
 		isSearchedExeced(true);
@@ -91,6 +83,7 @@ export default function SearchBar() {
 			document.removeEventListener("keydown", listener);
 		};
 	}, [inputFocused, searchExec]);
+	
 	return (
 		<>
 			<div className="search" ref={r => setSearchBlock(r)}>
