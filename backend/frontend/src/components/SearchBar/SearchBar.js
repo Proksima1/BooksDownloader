@@ -2,6 +2,7 @@ import React, { useState, useCallback, useEffect, useRef } from 'react';
 import useWebSocket from 'react-use-websocket';
 import logo from './images/search-icon.svg'
 import BooksBlock from "../BooksBlock/BooksBlock";
+import Loader from '../Loader/Loader';
 
 export default function SearchBar() {
 	const { sendJsonMessage } = useWebSocket('ws://127.0.0.1:8000/ws/search', {
@@ -83,7 +84,7 @@ export default function SearchBar() {
 			document.removeEventListener("keydown", listener);
 		};
 	}, [inputFocused, searchExec]);
-	
+
 	return (
 		<>
 			<div className="search" ref={r => setSearchBlock(r)}>
@@ -95,6 +96,7 @@ export default function SearchBar() {
 					</a>
 				</form>
 			</div >
+			{/* <Loader></Loader> */}
 			{books}
 		</>
 	)

@@ -132,13 +132,13 @@ CHANNEL_LAYERS = {
     },
 }
 
+# celery setting.
 CELERY_BROKER_URL = 'redis://default:redispw@localhost:49153'
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_result_serializer = 'json'
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_TIMEZONE = 'Europe/Moscow'
 CELERY_RESULT_BACKEND = 'django-db'
-# celery setting.
 CELERY_cache_backend = 'django-cache'
 
 CORS_ALLOW_ALL_ORIGINS = True
