@@ -1,2 +1,5 @@
 /.vscode
 *.pyc
+/.idea
+test/test.py
+*.fb2

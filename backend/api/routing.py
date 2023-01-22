@@ -1,6 +1,5 @@
-from django.urls import path
+from django.urls import re_path
 from .consumers import WSSearch
-
 ws_urlpattern = [
-    path('ws/search', WSSearch.as_asgi()),
+    re_path('ws/search', WSSearch.as_asgi()),
 ]

@@ -2,28 +2,39 @@ import io
 import json
 import os
 from io import BytesIO
+from enum import Enum
 
-from .BooksParsingTool import searchBooks, parseBook
+import celery
+import django
+
+from .BooksParsingTool import searchBooks, parseBook, getPageBooks
 from celery import shared_task
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
 from .models import Book, SearchRequest
+from .logs import log, LogLevels
 
 
 @shared_task()
 def searchBooksTask(searchRequest: str):
     searchRequest = searchRequest.lower().title()
     channel_layer = get_channel_layer()
+    booksCount = 0
     try:
         req = SearchRequest.objects.get(searchRequest__iexact=searchRequest)
         books = [{'title': book.bookName, 'author': book.bookAuthor,
                   'source': book.bookLink.split('books')[0], 'cover': book.bookCover,
                   'downloadUrl': book.bookLink} for book in req.books.all()]
+        booksCount = len(books)
+        log(f'Got data from db, request: "{searchRequest}"', LogLevels.info)
     except:
+        log(f'Request "{searchRequest}" not found, parsing from site...', LogLevels.warning)
         request = SearchRequest.objects.create(
             searchRequest=searchRequest
         )
-        books = searchBooks(searchRequest)
+        booksCount, books = searchBooks(searchRequest)
+        numPages = booksCount // 20 + 1
+
         for book in books:
             b = Book(
                 bookName=book['title'],
@@ -31,12 +42,48 @@ def searchBooksTask(searchRequest: str):
                 bookCover=book['cover'],
                 bookLink=book['downloadUrl'],
             )
-            b.save()
-            request.books.add(b)
-    message = {'type': 'searchResponse', 'message': books}
+            log(f'Saving book "{book["title"]}" to db', LogLevels.info)
+            try:
+                b.save()
+                request.books.add(b)
+            except django.db.utils.IntegrityError:
+                print(f"{book['title']} is in db")
+        if numPages > 1:
+            getAllBooksByRequest.delay(searchRequest, 2, numPages)
+        request.save()
+    message = {'type': 'searchResponse', 'message': (booksCount, books)}
     async_to_sync(channel_layer.group_send)(
         'booksGroup', {'type': "send_data", "message": json.dumps(message)}
     )
+    # celery.current_app.send_task('api.tasks.getAllBooksByRequest', args=['Филип Пулман'])
+
+
+@shared_task()
+def getPageTask():
+    pass
+
+
+@shared_task()
+def getAllBooksByRequest(searchRequest: str, nowPage: int, numPages: int):
+    books = getPageBooks(searchRequest, nowPage)
+    request = SearchRequest.objects.get(searchRequest__iexact=searchRequest)
+    for book in books:
+        b = Book(
+            bookName=book['title'],
+            bookAuthor=book['author'],
+            bookCover=book['cover'],
+            bookLink=book['downloadUrl'],
+        )
+        log(f'Saving book "{book["title"]}" to db', LogLevels.info)
+        try:
+            b.save()
+            request.books.add(b)
+        except django.db.utils.IntegrityError:
+            print(f"{book['title']} is in db")
+
+    request.save()
+    if nowPage < numPages:
+        getAllBooksByRequest.delay(searchRequest, nowPage + 1, numPages)
 
 
 @shared_task()
@@ -44,11 +91,13 @@ def parseBooksTask(bookUrl):
     channel_layer = get_channel_layer()
     book = Book.objects.get(bookLink__exact=bookUrl)
     if not bool(book.book):
+        log(f'Parsing book "{bookUrl}" to file', LogLevels.info)
         path, fileName = parseBook(bookUrl)
         fileSize = os.path.getsize(path)
         book.bookSize = fileSize
         book.save()
         book.book.save("books/" + fileName, BytesIO(io.open(path, "rb", buffering=5).read()))
+        log(f'Saved book')
     else:
         fileName = book.book.name.split('/')[1]
     message = json.dumps({"type": 'parseResponse',

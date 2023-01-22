@@ -5,11 +5,30 @@ from django.db import models
 
 
 class Log(models.Model):
+    levels = [(0, "DEBUG"),
+              (1, "INFO"),
+              (2, 'WARNING'),
+              (3, "ERROR")]
     timestamp = models.DateTimeField(default=datetime.now)
     message = models.TextField()
+    level = models.IntegerField(default=1, choices=levels)
+    """Level: 0 - DEBUG
+              1 - INFO
+              2 - WARNING
+              3 - ERROR"""
+
+    def format_timestamp(self):
+        return self.timestamp.strftime("%d/%m/%Y %H:%M:%S")
+
+    def view_level(self):
+        return self.levels[self.level]
 
     def __str__(self):
         return self.message
+
+
+class LogAdmin(admin.ModelAdmin):
+    list_display = ('format_timestamp', 'message', 'level',)
 
 
 class Book(models.Model):
@@ -37,7 +56,7 @@ class SearchRequest(models.Model):
         verbose_name_plural = 'Search requests'
         ordering = ["-timestamp"]
 
-    searchRequest = models.TextField(null=False, unique=True)
+    searchRequest = models.TextField(unique=True)
     timestamp = models.DateTimeField(default=datetime.now)
     books = models.ManyToManyField(Book)
 

@@ -1,6 +1,6 @@
 from channels.generic.websocket import WebsocketConsumer
 import json
-from .tasks import parseBooksTask, searchBooksTask
+from .tasks import parseBooksTask, searchBooksTask, getPageTask
 from asgiref.sync import async_to_sync
 
 
@@ -8,7 +8,8 @@ class WSSearch(WebsocketConsumer):
     def __init__(self):
         super(WSSearch, self).__init__()
         self.receiveTypes = {'search': searchBooksTask,
-                             'parse': parseBooksTask}
+                             'parse': parseBooksTask,
+                             'goToPage': getPageTask}
 
     def connect(self):
         async_to_sync(self.channel_layer.group_add)(

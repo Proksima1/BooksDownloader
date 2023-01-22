@@ -1,1 +1,1 @@
-from .utils import get_html_and_render, KnigaOnlineParser, Sites
+from .utils import get_html, KnigaOnlineParser, Sites

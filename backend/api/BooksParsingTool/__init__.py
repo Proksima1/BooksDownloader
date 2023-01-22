@@ -1,1 +1,1 @@
-from .parser import searchBooks, parseBook
+from .parser import searchBooks, parseBook, getPageBooks

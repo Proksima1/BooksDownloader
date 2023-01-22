@@ -3,6 +3,8 @@ import os
 import random
 import string
 from typing import List, Callable
+
+import httpx
 from transliterate import translit
 from bs4.element import PageElement
 from requests_html import HTMLSession
@@ -10,21 +12,17 @@ import base64
 import re
 
 
-def get_html_and_render(url: str, render=False, data=None):
-    session = HTMLSession()
-    r = session.get(url, data=data)
-    if render:
-        r.html.render(timeout=20)
+def get_html(url: str, data=None):
+    client = httpx.Client(http2=True)
+    r = client.get(url, params=data)
     if r.status_code == 200:
         return r.text
     return None
 
 
-def post_html_and_render(url: str, render=False, data=None):
-    session = HTMLSession()
-    r = session.post(url, data=data)
-    if render:
-        r.html.render(timeout=20)
+def post_html(url: str, data=None):
+    client = httpx.Client(http2=True)
+    r = client.post(url, data=data)
     if r.status_code == 200:
         return r.text
     return None

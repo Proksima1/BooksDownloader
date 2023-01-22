@@ -12,6 +12,7 @@ body {
 	outline: none;
 	width: 100%;
 	min-height: 100vh;
+   box-sizing: none !important;
 }
 body::-webkit-scrollbar {
 	width: 12px;

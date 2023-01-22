@@ -9,7 +9,6 @@ from .tools import generateBookName, convert_to_fb2
 class Parser(ABC):
     def __init__(self):
         self.BASE_URL = ''
-        self.shouldRender = None
 
     @abstractmethod
     def search(self, searchRequest: str) -> List:
@@ -17,6 +16,10 @@ class Parser(ABC):
 
     @abstractmethod
     def parse(self, url: str) -> List:
+        raise NotImplementedError
+
+    @abstractmethod
+    def getPage(self, searchRequest: str, nowPage: int) -> List:
         raise NotImplementedError
 
     def writeFile(self, bookData: tuple) -> Tuple:

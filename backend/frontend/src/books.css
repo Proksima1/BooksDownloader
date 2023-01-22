@@ -28,11 +28,20 @@
 .book-item__desc-block{
 	max-width: 100%;
 }
-.book-item__cover{
-	height: 140px;
-	min-height: 100%;
-	border-radius: 10px;
+.cover__wrapper{
+   width: 100px;
+   height: 100%;
 	margin-right: 20px;
+
+}
+.book-item__cover{
+   height: 140px;
+	/* height: 100%; */
+	/* max-height: 100%; */
+	border-radius: 10px;
+   width: 100%;
+   object-fit: cover;
+   /* max-width: 100%; */
 }
 .book-item__title{
 	margin: 0;
