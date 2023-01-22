@@ -18,10 +18,10 @@
    height: 120px;
    width: 120px;
    margin:0 auto;
-   position:relative;
-   position: absolute;
-   top:50%;
-   left:45%;
+   /* position:relative; */
+   /* position: absolute; */
+   /* top:50%; */
+   /* left:45%; */
    -webkit-animation: rotation 1s infinite linear;
    -moz-animation: rotation 1s infinite linear;
    -o-animation: rotation 1s infinite linear;

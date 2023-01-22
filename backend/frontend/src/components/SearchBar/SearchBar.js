@@ -25,11 +25,12 @@ export default function SearchBar() {
                let messageSearch = data.message;
                setCountBooksOnBack(messageSearch[0]);
                messageSearch = messageSearch[1];
-               if (messageSearch.length === 0) {
-                  setBooks(<BooksBlock error={"По данному запросу ничего не найдено. Попробуйте использовать похожие слова или другие написания слов"} />);
-               } else {
-                  setBooks(<BooksBlock books={data.message} sendJsonMessage={sendMessage} />);
-               }
+               setBooks(data.message);
+               // if (messageSearch.length === 0) {
+               //    setBooks(<BooksBlock error={"По данному запросу ничего не найдено. Попробуйте использовать похожие слова или другие написания слов"} />);
+               // } else {
+               //    setBooks(<BooksBlock books={data.message} sendJsonMessage={sendJsonMessage} />);
+               // }
                break;
             case 'parseResponse':
                let messageParse = data.message;
@@ -67,7 +68,6 @@ export default function SearchBar() {
    const [searchBlock, setSearchBlock] = useState([]);
    const [searchInput, setSearchInput] = useState([]);
    const [books, setBooks] = useState('');
-   const sendMessage = (f) => sendJsonMessage(f);
 
    const searchExec = useCallback((isSearchedExeced) => {
       let requestDict = { 'type': 'search', 'message': searchInput.value }
@@ -90,7 +90,7 @@ export default function SearchBar() {
          if ((event.code === "Enter" || event.code === "NumpadEnter") && inputFocused) {
             event.preventDefault();
             setNowRequest(searchInput.value);
-            setBooks(<BooksBlock hide={true} />);
+            // setBooks(<BooksBlock hide={true} />);
             searchExec(setIsSearchedExeced);
          }
       };
@@ -99,7 +99,6 @@ export default function SearchBar() {
          document.removeEventListener("keydown", listener);
       };
    }, [inputFocused, searchExec]);
-
    return (
       <>
          <div className="search" ref={r => setSearchBlock(r)}>
@@ -113,7 +112,7 @@ export default function SearchBar() {
          </div >
          {/* <Loader></Loader> */}
          {/* {books} */}
-         <Paginator itemsPerPage={10} sendJsonMessage={sendJsonMessage}></Paginator>
+         <Paginator books={books} itemsPerPage={10} sendJsonMessage={sendJsonMessage}></Paginator>
       </>
    )
 }
