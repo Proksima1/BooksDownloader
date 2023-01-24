@@ -3,10 +3,9 @@ import useWebSocket from 'react-use-websocket';
 import logo from './images/search-icon.svg'
 import BooksBlock from "../BooksBlock/BooksBlock";
 import Paginator from '../Paginator/Paginator';
+import Loader from '../Loader/Loader';
 
 export default function SearchBar() {
-   const [countBooksOnBack, setCountBooksOnBack] = useState(false);
-   const [nowRequest, setNowRequest] = useState('');
    const { sendJsonMessage, } = useWebSocket('ws://127.0.0.1:8000/ws/search', {
       onOpen: () => {
          console.log("Connected!")
@@ -23,7 +22,6 @@ export default function SearchBar() {
                break;
             case 'searchResponse':
                let messageSearch = data.message;
-               setCountBooksOnBack(messageSearch[0]);
                messageSearch = messageSearch[1];
                setBooks(data.message);
                // if (messageSearch.length === 0) {
@@ -40,6 +38,10 @@ export default function SearchBar() {
                   }
                   return response.blob()
                }).then(blob => downloadBook(blob, messageParse.fileName))
+               break;
+            case 'getNewPage':
+               let messageGetPage = data.message;
+               setBooks(messageGetPage);
                break;
             default:
                console.error('Такого типа нет в приеме')
@@ -68,28 +70,34 @@ export default function SearchBar() {
    const [searchBlock, setSearchBlock] = useState([]);
    const [searchInput, setSearchInput] = useState([]);
    const [books, setBooks] = useState('');
+   const [loading, setLoading] = useState(false);
 
    const searchExec = useCallback((isSearchedExeced) => {
       let requestDict = { 'type': 'search', 'message': searchInput.value }
       if (searchBlock.classList.contains('searching_block')) return sendJsonMessage(requestDict);
       isSearchedExeced(true);
+
       setTimeout(function () {
          searchBlock.classList.add('searching_block');
          sendJsonMessage(requestDict);
+         setBooks('loading');
       }, 1000);
+
    }, [sendJsonMessage, searchBlock, searchInput])
 
-   // useEffect(() => {
-   //    if () {
-
-   //    }
-   // }, [countBooksOnBack, nowRequest])
+   useEffect(() => {
+      if (isSearchedExeced && books == 'loading') {
+         setLoading(true);
+      }
+      else if (isSearchedExeced) {
+         setLoading(false);
+      }
+   }, [books])
 
    useEffect(() => {
       const listener = event => {
          if ((event.code === "Enter" || event.code === "NumpadEnter") && inputFocused) {
             event.preventDefault();
-            setNowRequest(searchInput.value);
             // setBooks(<BooksBlock hide={true} />);
             searchExec(setIsSearchedExeced);
          }
@@ -110,9 +118,9 @@ export default function SearchBar() {
                </a>
             </form>
          </div >
-         {/* <Loader></Loader> */}
+         {(loading) ? (<Loader></Loader>) : (<></>)}
          {/* {books} */}
-         <Paginator books={books} itemsPerPage={10} sendJsonMessage={sendJsonMessage}></Paginator>
+         <Paginator searchR={searchInput.value} books={books} setBooks={setBooks} itemsPerPage={10} sendJsonMessage={sendJsonMessage}></Paginator>
       </>
    )
 }

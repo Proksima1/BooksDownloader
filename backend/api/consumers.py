@@ -23,6 +23,7 @@ class WSSearch(WebsocketConsumer):
     def receive(self, text_data=None, bytes_data=None):
         data = json.loads(text_data)
         messageType = data['type']
+        print(data)
         task = self.receiveTypes[messageType].delay(data['message'])
 
     def disconnect(self, code):

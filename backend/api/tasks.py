@@ -19,19 +19,22 @@ from .logs import log, LogLevels
 def searchBooksTask(searchRequest: str):
     searchRequest = searchRequest.lower().title()
     channel_layer = get_channel_layer()
-    booksCount = 0
     try:
         req = SearchRequest.objects.get(searchRequest__iexact=searchRequest)
         books = [{'title': book.bookName, 'author': book.bookAuthor,
                   'source': book.bookLink.split('books')[0], 'cover': book.bookCover,
                   'downloadUrl': book.bookLink} for book in req.books.all()]
         booksCount = len(books)
+        books = books[0:10]
         log(f'Got data from db, request: "{searchRequest}"', LogLevels.info)
     except:
         log(f'Request "{searchRequest}" not found, parsing from site...', LogLevels.warning)
-        request = SearchRequest.objects.create(
-            searchRequest=searchRequest
-        )
+        try:
+            request = SearchRequest.objects.create(
+                searchRequest=searchRequest
+            )
+        except django.db.utils.OperationalError:
+            request = SearchRequest.objects.get(searchRequest__iexact=searchRequest)
         booksCount, books = searchBooks(searchRequest)
         numPages = booksCount // 20 + 1
 
@@ -59,8 +62,19 @@ def searchBooksTask(searchRequest: str):
 
 
 @shared_task()
-def getPageTask():
-    pass
+def getPageTask(message):
+    channel_layer = get_channel_layer()
+    searchReq, startCountBooks = message
+    books = SearchRequest.objects.get(searchRequest__iexact=searchReq).books.all()
+    numPages = len(books)
+    books = [{'title': book.bookName, 'author': book.bookAuthor,
+              'source': book.bookLink.split('books')[0], 'cover': book.bookCover,
+              'downloadUrl': book.bookLink} for book in books]
+    books = books[startCountBooks:startCountBooks + 10]
+    message = {'type': 'getNewPage', 'message': (numPages, books)}
+    async_to_sync(channel_layer.group_send)(
+        'booksGroup', {'type': "send_data", "message": json.dumps(message)}
+    )
 
 
 @shared_task()

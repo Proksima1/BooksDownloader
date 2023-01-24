@@ -5,51 +5,33 @@ import BooksBlock from '../BooksBlock/BooksBlock';
 import Loader from '../Loader/Loader';
 
 
-// const items = [...Array(33).keys()];
-
-// function Items({ currentItems }) {
-//    return (
-//       <div className="items">
-//          {currentItems && currentItems.map((item) => (
-//             <div>
-//                <h3>Item #{item}</h3>
-//             </div>
-//          ))}
-//       </div>
-//    );
-// }
-
-export default function Paginator({ books, itemsPerPage, sendJsonMessage }) {
-   // We start with an empty list of items.
+export default function Paginator({ searchR, books, setBooks, itemsPerPage, sendJsonMessage }) {
    const [currentItems, setCurrentItems] = useState([]);
    const [block, setBlock] = useState([]);
    const [pageCount, setPageCount] = useState(0);
-   // const []
-   // Here we use item offsets; we could also use page offsets
-   // following the API or data you're working with.
    const [itemOffset, setItemOffset] = useState(0);
 
    useEffect(() => {
-      // Fetch items from another resources.
-      if (books != '') {
+      if (books == 'loading') {
+         setCurrentItems('');
+      }
+      else if (books != '') {
          let Numbooks = books[0];
          books = books[1];
          const endOffset = itemOffset + itemsPerPage;
          console.log(`Loading items from ${itemOffset} to ${endOffset}`);
-         setCurrentItems(books.slice(itemOffset, endOffset));
-         console.log(books)
+         setCurrentItems(books);
          // console.log(currentItems)
          setPageCount(Math.ceil(Numbooks / itemsPerPage));
       }
    }, [itemOffset, itemsPerPage, books]);
 
-   // Invoke when user click to request another page.
    const handlePageClick = (event) => {
-      const newOffset = event.selected * itemsPerPage % books[1].length;
+      const newOffset = event.selected * itemsPerPage % books[0];
       console.log(`User requested page number ${event.selected}, which is offset ${newOffset}`);
       setItemOffset(newOffset);
-
-      // sendJsonMessage({ 'type': 'goToPage', 'message': newOffset })
+      setBooks("loading");
+      sendJsonMessage({ 'type': 'goToPage', 'message': [searchR, newOffset] })
    };
 
    return (

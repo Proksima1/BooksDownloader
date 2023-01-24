@@ -1,5 +1,7 @@
 from enum import Enum
 
+import django
+
 from .models import Log
 from datetime import datetime
 from django.utils import timezone
@@ -18,4 +20,7 @@ def log(message, level=LogLevels.info):
         message=message,
         level=level.value
     )
-    l.save()
+    try:
+        l.save()
+    except django.db.utils.OperationalError:
+        pass

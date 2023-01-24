@@ -127,13 +127,15 @@ CHANNEL_LAYERS = {
     "default": {
         "BACKEND": "channels_redis.core.RedisChannelLayer",
         "CONFIG": {
-            "hosts": ["redis://default:redispw@localhost:49153"],
+            # "hosts": ["redis://default:redispw@localhost:49154"],
+            "hosts": ["redis://194.67.91.88:6379"],
         },
     },
 }
 
 # celery setting.
-CELERY_BROKER_URL = 'redis://default:redispw@localhost:49153'
+# CELERY_BROKER_URL = 'redis://default:redispw@localhost:49154' 194.67.91.88
+CELERY_BROKER_URL = 'redis://194.67.91.88:6379'
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_result_serializer = 'json'
 CELERY_TASK_SERIALIZER = 'json'
