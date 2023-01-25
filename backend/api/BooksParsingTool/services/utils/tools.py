@@ -10,6 +10,7 @@ from bs4.element import PageElement
 from requests_html import HTMLSession
 import base64
 import re
+from alphabet_detector import AlphabetDetector
 
 
 def get_html(url: str, data=None):
@@ -40,8 +41,12 @@ def clearFromSpaces(text_list: list) -> list:
 
 
 def generateBookName(bookName, author):
+    ad = AlphabetDetector()
     res = ''.join((random.choice(string.ascii_letters)) for _ in range(100))
-    book = f'{translit(bookName, reversed=True)}_{translit(author, reversed=True)}_{hashlib.md5(res.encode("utf - 8")).hexdigest()}'
+    if ad.is_cyrillic(bookName):
+        book = f'{translit(bookName, reversed=True)}_{translit(author, reversed=True)}_{hashlib.md5(res.encode("utf - 8")).hexdigest()}'
+    else:
+        book = f'{hashlib.md5(res.encode("utf - 8")).hexdigest()}_{translit(author, reversed=True)}'
     book = re.sub(r'[^\w\s]', '', book)  # Очистка от знаков препинания
     return book.replace(' ', '_')
 

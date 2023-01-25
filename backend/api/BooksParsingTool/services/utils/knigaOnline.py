@@ -67,6 +67,7 @@ class KnigaOnlineParser(Parser):
             'span').next_sibling.strip()
         author = soup.find('div', class_='finfo').find_all('div', class_='sd-line')[2].find('a').text
         numberOfPages = soup.find('span', class_='navigation').children
+        numberOfPages = [i for i in numberOfPages if i.text.strip() != '']
         url = soup.find("meta", property="og:url")['content']
         url = url.rsplit('/', maxsplit=1)
         url.insert(1, '/page-{0}-')

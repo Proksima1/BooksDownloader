@@ -17,15 +17,14 @@ from .logs import log, LogLevels
 
 @shared_task()
 def searchBooksTask(searchRequest: str):
-    searchRequest = searchRequest.lower().title()
+    searchRequest = searchRequest.lower().title().strip()
     channel_layer = get_channel_layer()
     try:
-        req = SearchRequest.objects.get(searchRequest__iexact=searchRequest)
+        req = SearchRequest.objects.get(searchRequest__iexact=searchRequest).books
+        booksCount = req.count()
         books = [{'title': book.bookName, 'author': book.bookAuthor,
                   'source': book.bookLink.split('books')[0], 'cover': book.bookCover,
-                  'downloadUrl': book.bookLink} for book in req.books.all()]
-        booksCount = len(books)
-        books = books[0:10]
+                  'downloadUrl': book.bookLink} for book in req.all()[0:10]]
         log(f'Got data from db, request: "{searchRequest}"', LogLevels.info)
     except:
         log(f'Request "{searchRequest}" not found, parsing from site...', LogLevels.warning)
@@ -35,6 +34,7 @@ def searchBooksTask(searchRequest: str):
             )
         except django.db.utils.OperationalError:
             request = SearchRequest.objects.get(searchRequest__iexact=searchRequest)
+        # except
         booksCount, books = searchBooks(searchRequest)
         numPages = booksCount // 20 + 1
 
@@ -49,8 +49,8 @@ def searchBooksTask(searchRequest: str):
             try:
                 b.save()
                 request.books.add(b)
-            except django.db.utils.IntegrityError:
-                print(f"{book['title']} is in db")
+            except django.db.utils.IntegrityError as e:
+                print(f"{book['title']} is in db {e}")
         if numPages > 1:
             getAllBooksByRequest.delay(searchRequest, 2, numPages)
         request.save()
@@ -65,13 +65,19 @@ def searchBooksTask(searchRequest: str):
 def getPageTask(message):
     channel_layer = get_channel_layer()
     searchReq, startCountBooks = message
-    books = SearchRequest.objects.get(searchRequest__iexact=searchReq).books.all()
-    numPages = len(books)
-    books = [{'title': book.bookName, 'author': book.bookAuthor,
-              'source': book.bookLink.split('books')[0], 'cover': book.bookCover,
-              'downloadUrl': book.bookLink} for book in books]
-    books = books[startCountBooks:startCountBooks + 10]
-    message = {'type': 'getNewPage', 'message': (numPages, books)}
+    searchReq = searchReq.lower().title().strip()
+    try:
+        books = SearchRequest.objects.get(searchRequest__iexact=searchReq).books
+    except SearchRequest.DoesNotExist:
+        booksCount = 0
+        books = []
+    else:
+        booksCount = books.count()
+        books = [{'title': book.bookName, 'author': book.bookAuthor,
+                  'source': book.bookLink.split('books')[0], 'cover': book.bookCover,
+                  'downloadUrl': book.bookLink} for book in books.all()]
+        books = books[startCountBooks:startCountBooks + 10]
+    message = {'type': 'getNewPage', 'message': (booksCount, books)}
     async_to_sync(channel_layer.group_send)(
         'booksGroup', {'type': "send_data", "message": json.dumps(message)}
     )

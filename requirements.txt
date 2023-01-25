@@ -7,4 +7,4 @@ channels-redis==3.4.1
 celery==5.2.7
 sgmllib3k
 bs4
-httpx==0.23.3
+httpx[http2]==0.23.3

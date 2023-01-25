@@ -69,7 +69,7 @@ Chris TODO
     * support of non ascii chracter (e.g. Unicode) like "...", mdash, etc. open/close quotes, check HaliReader on pocketPC (suspect missing unicode font) and import my mapping code
 """
 
-version = '0.1.1'
+version = '1.0.0'
 
 # Module wide values
 _SENTENCE_FIN = '\'".!?:\xBB\u2026'  # \xBB == >>, \u2026 == ...
@@ -1226,7 +1226,7 @@ class MyHTMLParser(SGMLParser):
                 '<date value="%s">%s</date>' \
                 '<id>%s</id>' \
                 '<version>1.0</version>' \
-                '<program-used>h2fb ver. %s</program-used>' \
+                '<program-used>Books Downloader ver. %s</program-used>' \
                 '</document-info></description>' % \
                 (time.strftime('%Y-%m-%d'),
                  str(time.strftime('%d %B %Y, %H:%M') + self.params['sys-encoding']),

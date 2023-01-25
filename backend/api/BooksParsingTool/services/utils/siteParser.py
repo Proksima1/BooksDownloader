@@ -28,7 +28,9 @@ class Parser(ABC):
             :return: Tuple
         """
         text_list, book_name, author = bookData
-        path = 'media/books'
+        path = r'media/books'
+        if not os.path.exists(path):
+            os.makedirs(path)
         filename = generateBookName(book_name, author)
         pathToFileH = os.path.join(path, filename)
         with open(f'{pathToFileH}.html', 'w+', encoding='utf-8') as writer:

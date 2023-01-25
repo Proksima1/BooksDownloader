@@ -23,7 +23,7 @@ class WSSearch(WebsocketConsumer):
     def receive(self, text_data=None, bytes_data=None):
         data = json.loads(text_data)
         messageType = data['type']
-        print(data)
+        print(f'Got message: {data}')
         task = self.receiveTypes[messageType].delay(data['message'])
 
     def disconnect(self, code):
@@ -32,4 +32,5 @@ class WSSearch(WebsocketConsumer):
         )
 
     def send_data(self, event):
+        print(f'Sent message: {event["message"][0:100]}...')
         self.send(text_data=event["message"])
