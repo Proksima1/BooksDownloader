@@ -49,6 +49,7 @@ class Book(models.Model):
 @admin.register(Book)
 class BookAdmin(admin.ModelAdmin):
     list_display = ('bookName', 'bookAuthor')
+    search_fields = ['bookName']
 
 
 class SearchRequest(models.Model):

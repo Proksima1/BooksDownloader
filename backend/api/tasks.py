@@ -34,10 +34,17 @@ def searchBooksTask(searchRequest: str):
             )
         except django.db.utils.OperationalError:
             request = SearchRequest.objects.get(searchRequest__iexact=searchRequest)
-        # except
         booksCount, books = searchBooks(searchRequest)
         numPages = booksCount // 20 + 1
 
+        doubles = []
+        outputBooks = []
+        for i in books:
+            if i['title'] not in doubles:
+                outputBooks.append(i)
+                doubles.append(i['title'])
+        books = outputBooks[0:10]
+        booksCount = len(books)
         for book in books:
             b = Book(
                 bookName=book['title'],
@@ -50,15 +57,15 @@ def searchBooksTask(searchRequest: str):
                 b.save()
                 request.books.add(b)
             except django.db.utils.IntegrityError as e:
-                print(f"{book['title']} is in db {e}")
+                log(f"{book['title']} is in db {e}", LogLevels.info)
         if numPages > 1:
+            log(f'Starting to parse all pages from the request {searchRequest}', LogLevels.info)
             getAllBooksByRequest.delay(searchRequest, 2, numPages)
         request.save()
     message = {'type': 'searchResponse', 'message': (booksCount, books)}
     async_to_sync(channel_layer.group_send)(
         'booksGroup', {'type': "send_data", "message": json.dumps(message)}
     )
-    # celery.current_app.send_task('api.tasks.getAllBooksByRequest', args=['Филип Пулман'])
 
 
 @shared_task()

@@ -9,6 +9,15 @@ export default function Paginator({ searchR, books, setBooks, itemsPerPage, send
 	const [currentItems, setCurrentItems] = useState([]);
 	const [pageCount, setPageCount] = useState(0);
 	const [itemOffset, setItemOffset] = useState(0);
+	const [r, setR] = useState(0);
+	const [page, setPage] = useState(-2);
+	useEffect(() => {
+		console.log(searchR)
+		if (r !== searchR) {
+			setR(searchR);
+			setPage(0);
+		}
+	}, [searchR, r]);
 
 	useEffect(() => {
 		if (books === 'loading') {
@@ -24,14 +33,16 @@ export default function Paginator({ searchR, books, setBooks, itemsPerPage, send
 			// console.log(Numbooks);
 			// console.log(itemsPerPage);
 			setPageCount(Math.ceil(Numbooks / itemsPerPage));
+			setPage(page);
 		}
-	}, [itemOffset, itemsPerPage, books]);
+	}, [itemOffset, itemsPerPage, books, page]);
 
 	const handlePageClick = (event) => {
 		const newOffset = event.selected * itemsPerPage % books[0];
 		console.log(`User requested page number ${event.selected + 1}, which is offset ${newOffset}`);
 		setItemOffset(newOffset);
 		setBooks("loading");
+		setPage(event.selected);
 		sendJsonMessage({ 'type': 'goToPage', 'message': [searchR, newOffset] })
 	};
 
@@ -47,6 +58,7 @@ export default function Paginator({ searchR, books, setBooks, itemsPerPage, send
 							pageRangeDisplayed={3}
 							marginPagesDisplayed={2}
 							pageCount={pageCount}
+							forcePage={page}
 							previousLabel="< предыдущая"
 							pageClassName="page-item"
 							pageLinkClassName="page-link"

@@ -20,6 +20,7 @@ def log(message, level=LogLevels.info):
         message=message,
         level=level.value
     )
+    print(message)
     try:
         l.save()
     except django.db.utils.OperationalError:
