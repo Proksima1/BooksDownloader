@@ -29,7 +29,8 @@ class KnigaOnlineParser(Parser):
             desc = book.find('div', class_='short-desc')
             bookName = desc.find_all('div', class_='sd-line')[1].text.split(':')[1].strip()
             author = desc.find_all('div', class_='sd-line')[2].text.split(':')[1].strip()
-            bookCover = self.BASE_URL + book.find('div', class_='short-img').find('img')['src']
+            # print(book)
+            bookCover = self.BASE_URL + book.find('div', class_='short-img').find('img')['data-src']
             downloadLink = book.find('a', class_='short-title')['href']
             if bookName not in list(map(lambda x: x['title'], data)):
                 data.append({'title': bookName, 'author': author,
@@ -49,7 +50,7 @@ class KnigaOnlineParser(Parser):
             desc = book.find('div', class_='short-desc')
             bookName = desc.find_all('div', class_='sd-line')[1].text.split(':')[1].strip()
             author = desc.find_all('div', class_='sd-line')[2].text.split(':')[1].strip()
-            bookCover = self.BASE_URL + book.find('div', class_='short-img').find('img')['src']
+            bookCover = self.BASE_URL + book.find('div', class_='short-img').find('img')['data-src']
             downloadLink = book.find('a', class_='short-title')['href']
             if bookName not in list(map(lambda x: x['title'], data)):
                 data.append({'title': bookName, 'author': author,

@@ -1,5 +1,5 @@
 django-cors-headers==3.13.0
-channels==3.4.1
+channels
 django==4.0.4
 djangorestframework==3.14.0
 django-celery-results==2.4.0
@@ -8,3 +8,7 @@ celery==5.2.7
 sgmllib3k
 bs4
 httpx[http2]==0.23.3
+transliterate
+requests_html
+alphabet_detector
+redis

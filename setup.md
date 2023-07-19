@@ -2,8 +2,10 @@
 ## Бэкэнд
 * Перейти в папку /BooksDownloader/backend
 * python manage.py runserver
-## Запуск докера
-* Запустить
+## Запуск docker
+* Запустить docker
+## Запуск redis
+* Запустить redis
 ## Запуск celery
 * celery -A backend worker -l INFO
 ## Фронтэнд
